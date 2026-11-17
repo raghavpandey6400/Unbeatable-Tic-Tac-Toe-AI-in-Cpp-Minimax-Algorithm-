@@ -1,0 +1,215 @@
+#include <iostream>
+#include <ctime>
+#include <cstdlib>
+#include <algorithm>
+
+void draw_board(char *space);
+void player1_choice(char *space,char player1);
+void player2_choice(char *space,char player2,char player1 );
+bool check_winner(char *space,char player1,char player2);
+bool check_draw(char *space,char player1,char player2);
+
+int check (char *space,char player1,char player2);
+int minmax (char *space,char player1,char player2,int depth, bool ismax);
+
+int main(){
+
+     srand(time(NULL));
+
+char space[9]={' ',' ',' ',' ',' ',' ',' ',' ',' '};
+char player1 = 'X';
+char player2 = 'O';
+bool running = true;
+
+
+
+draw_board(space);
+
+while (running){
+    
+player1_choice(space,player1);
+draw_board(space);
+
+if(check_winner(space, player1, player2)){
+
+    running=false;
+    break;
+}
+
+if(check_draw(space, player1, player2)){
+    running=false;
+    break;
+}
+
+player2_choice(space,player2,player1);
+draw_board(space);
+if(check_winner(space, player1, player2)){
+    running=false;
+    break;
+}
+if(check_draw(space, player1, player2)){
+    running=false;
+    break;
+}
+}
+
+return 0;
+}
+
+void draw_board(char *space){
+std::cout<<"    |    |   "<<"\n";
+std::cout<<"   "<<space[0]<<"|"<<"  "<<space[1]<<" |"<<"   "<<space[2]<<"\n";
+std::cout<<"____|____|___"<<"\n";
+std::cout<<"    |    |   "<<"\n";
+std::cout<<"   "<<space[3]<<"|"<<"  "<<space[4]<<" |"<<"   "<<space[5]<<"\n";
+std::cout<<"____|____|___"<<"\n";
+std::cout<<"    |    |   "<<"\n";
+std::cout<<"   "<<space[6]<<"|"<<"  "<<space[7]<<" |"<<"   "<<space[8]<<"\n";
+
+std::cout<<"   "<<"\n";
+std::cout<<"   "<<"\n";
+
+
+}
+void player1_choice(char *space,char player1){
+int x;
+std::cout<<"player 1 choose (1-9) for your turn ";
+std::cin>>x;
+if (std::cin.fail()) {
+    std::cin.clear();
+    std::cin.ignore(10000, '\n');
+    std::cout<<"player 1 choose (1-9) for your turn ";
+}
+
+while(x<=0 || x>9||space[x-1]!=' ' ){
+std::cin>>x;
+}
+space[x-1]=player1;
+
+}
+void player2_choice(char *space,char player2,char player1){
+   
+    int bestval = -1000;
+    int best_mov= -1;
+
+    for(int i = 0 ; i<9; i++){
+
+       if (space[i]==' '){
+
+        space[i]=player2;
+        int move = minmax(space,player1,player2,0,false);
+        space[i]=' ';
+        if (move > bestval){
+            best_mov = i;
+            bestval = move;
+        }
+       }
+
+
+    }
+
+    space[best_mov] = player2;
+}
+bool check_winner(char *space,char player1,char player2){
+ if (space[1]!=' '&&space[0]==space[1]&&space[1]==space[2]){
+   space[1]==player1?std::cout<<"PLAYER 1 WIN!!"<<"\n":std::cout<<"PLAYER 2 WIN!!"<<"\n";
+ }
+else if (space[3]!=' '&&space[3]==space[4]&&space[4]==space[5]){
+   space[3]==player1?std::cout<<"PLAYER 1 WIN!!!!"<<"\n":std::cout<<"PLAYER 2 WIN!!"<<"\n";
+ }
+else if (space[6]!=' '&&space[6]==space[7]&&space[7]==space[8]){
+   space[6]==player1?std::cout<<"PLAYER 1 WIN!!"<<"\n":std::cout<<"PLAYER 2 WIN!!"<<"\n";
+ }
+else if (space[0]!=' '&&space[0]==space[4]&&space[4]==space[8]){
+   space[0]==player1?std::cout<<"PLAYER 1 WIN!!"<<"\n":std::cout<<"PLAYER 2 WIN!!"<<"\n";
+ }
+else if (space[2]!=' '&&space[2]==space[4]&&space[4]==space[6]){
+   space[2]==player1?std::cout<<"PLAYER 1 WIN!!"<<"\n":std::cout<<"PLAYER 2 WIN!!"<<"\n";
+ }
+else if (space[0]!=' '&&space[0]==space[3]&&space[3]==space[6]){
+   space[0]==player1?std::cout<<"PLAYER 1 WIN!!!!"<<"\n":std::cout<<"PLAYER 2 WIN!!"<<"\n";}
+else if (space[1]!=' '&&space[1]==space[4]&&space[4]==space[7]){
+    space[1]==player1?std::cout<<"PLAYER 1 WIN!!"<<"\n":std::cout<<"PLAYER 2 WIN!!"<<"\n";
+   
+ }
+else if (space[2]!=' '&&space[5]==space[2]&&space[8]==space[5]){
+   space[2]==player1?std::cout<<"PLAYER 1 WIN!!"<<"\n":std::cout<<"PLAYER 2 WIN!!"<<"\n";
+ }
+else{
+    return false;
+}
+
+    return true;
+}
+bool check_draw(char *space,char player1,char player2){
+
+  for(int i=0;i<9;i++){
+
+    if(space[i]== ' '){
+        return false;
+    }
+  }
+  std::cout<<"IT IS A TIE";
+
+
+    return true;
+}
+
+int check (char *space,char player1,char player2){
+for (int i =0 ;i<9 ;i=i+3 )
+{  
+    if(space[i]!=' '&&space[i]==space[i+1]&&space[i+1]==space[i+2]){return (space[i] == player2) ? 10 : -10;}
+}
+
+for (int i = 0; i < 3; i++) {
+        if (space[i] != ' ' && space[i] == space[i + 3] && space[i + 3] == space[i + 6])
+            return (space[i] == player2) ? 10 : -10;
+    }
+
+    if (space[0] != ' ' && space[0] == space[4] && space[4] == space[8])
+        return (space[0] == player2) ? 10 : -10;
+    if (space[2] != ' ' && space[2] == space[4] && space[4] == space[6])
+        return (space[2] == player2) ? 10 : -10;
+
+return 0 ;
+
+}
+
+int minmax (char *space,char player1,char player2,int depth, bool ismax){
+
+    int num = check(space,player1,player2);
+
+    if(num==10){return num - depth;}
+    if(num== -10){return num + depth;}
+
+    bool empty_or_not = 0;
+
+    for(int i = 0;i<9;i++){
+
+        if(space[i]==' '){empty_or_not = 1; }
+    }
+    if(!empty_or_not){return 0;}
+
+      if (ismax){
+        int best = -1000;
+                   for(int i=0;i<9;i++){
+                   if(space[i] == ' '){
+                    space[i]=player2;
+                    best = std::max(best ,minmax (space,player1, player2,depth+1 , !ismax));
+                    space[i]=' ';
+                    
+                   }}
+                   return best;
+      }
+      else {
+        int best = 1000;
+                   for(int i=0;i<9;i++){
+                if(space[i] == ' '){
+                    space[i]=player1;
+                    best = std::min(best ,minmax (space,player1, player2,depth+1 , !ismax));
+                    space[i]=' ';
+                    
+                   }
+                   }return best;
+      }
+}
